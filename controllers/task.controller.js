@@ -14,6 +14,12 @@ const getAllTasks = async (req, res) => {
 const postTask = async (req, res) => {
   try {
     const task = req.body;
+    if(!task.title) {
+      res.status(400).json({
+        message: 'Title is required'
+      })
+      return;
+    }
     const result = await db.query('INSERT INTO tasks (title) VALUES ($1) Returning * ', [task.title]);
     res.json(result.rows[0]);
   }
@@ -35,7 +41,7 @@ const updateTask = async (req, res) => {
       }
       return res.json(result.rows[0]);
     }
-    if(completed) {
+    if(completed !== undefined) {
       const result = await db.query('UPDATE tasks SET completed = $1 WHERE id = $2 Returning *', 
         [completed,id])
       if(result.rowCount === 0) {
